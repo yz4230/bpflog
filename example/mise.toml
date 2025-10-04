@@ -1,0 +1,10 @@
+[tasks.gen-bpf]
+run = "go generate ./..."
+
+[tasks.build]
+depends = ["gen-bpf"]
+run = "go build -o bin/example ."
+
+[tasks.start]
+depends = ["build"]
+run = "sudo ./bin/example"
