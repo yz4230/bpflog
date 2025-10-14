@@ -18,15 +18,15 @@ bpflog は、eBPF プログラムから perf リングバッファを使って�
 ## サンプルのビルドと実行（簡易）
 
 1. Go (1.25+) と clang/llvm をインストールします。
-2. リポジトリのルートからサンプルのビルドと実行コマンドを実行します。サンプルは `bpf2go` を使って `bpf.c` を Go バインディングに変換します。
+2. リポジトリのルートからサンプルのビルドと実行コマンドを実行します。
 
 ```bash
-# サンプルバイナリをビルド（bpf2go でバインディング生成）
-go generate ./example
-go build -o ./example/bin/example ./example
+# vmlinux ヘッダを生成
+mise gen-vmlinux
 
-# root（または CAP_NET_ADMIN）で実行し、example/main.go のネットワークインターフェース index を適切に設定してください
-sudo ./example/bin/example
+# サンプルを実行
+cd example
+mise start
 ```
 
 ## 注意とヒント

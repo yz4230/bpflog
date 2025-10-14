@@ -17,16 +17,16 @@ bpflog is a tiny Go library and example that logs messages from an eBPF program 
 
 ## Build and run the example (quick)
 
-1. Install Go (1.25+) and clang/llvm.
-2. From the repo root run the example build and run commands. The example uses `bpf2go` to compile `bpf.c` into Go bindings.
+1. Install Go (1.25+), clang/llvm, and [mise](https://mise.jdx.dev).
+2. From the repo root run the example build and run commands.
 
 ```bash
-# build the example binary (generates bindings with bpf2go)
-go generate ./example
-go build -o ./example/bin/example ./example
+# generate vmlinux headers
+mise gen-vmlinux
 
-# run as root (or with CAP_NET_ADMIN) and set the correct network interface index in example/main.go
-sudo ./example/bin/example
+# run the example
+cd example
+mise start
 ```
 
 ## Notes and tips
