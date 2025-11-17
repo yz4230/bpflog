@@ -2,8 +2,8 @@ package bpflog
 
 import (
 	"errors"
+	"io"
 	"os"
-	"sync/atomic"
 	"time"
 
 	"github.com/cilium/ebpf"
@@ -14,7 +14,7 @@ var Deadline = 100 * time.Millisecond
 
 type Handler struct {
 	m       *ebpf.Map
-	running atomic.Bool
+	closer  io.Closer
 	handler func(*perf.Record)
 }
 
@@ -23,20 +23,17 @@ func NewHandler(m *ebpf.Map, f func(*perf.Record)) *Handler {
 }
 
 func (h *Handler) Start() error {
-	h.running.Store(true)
-
 	r, err := perf.NewReader(h.m, os.Getpagesize())
 	if err != nil {
 		return err
 	}
-	defer r.Close()
+	h.closer = r
 
-	for h.running.Load() {
-		r.SetDeadline(time.Now().Add(Deadline))
+	for {
 		event, err := r.Read()
 		if err != nil {
-			if errors.Is(err, os.ErrDeadlineExceeded) {
-				continue
+			if errors.Is(err, os.ErrClosed) {
+				break
 			}
 			return err
 		}
@@ -46,6 +43,9 @@ func (h *Handler) Start() error {
 	return nil
 }
 
-func (h *Handler) Stop() {
-	h.running.Store(false)
+func (h *Handler) Stop() error {
+	if h.closer != nil {
+		return h.closer.Close()
+	}
+	return nil
 }

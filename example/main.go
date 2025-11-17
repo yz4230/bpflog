@@ -37,7 +37,7 @@ func main() {
 
 	logh := bpflog.NewHandler(objs.LogfEntries, func(r *perf.Record) {
 		msg := string(r.RawSample)
-		idx := strings.LastIndex(msg, "\n")
+		idx := strings.LastIndex(msg, "\x00")
 		log.Printf("log: %s", msg[:idx])
 	})
 
@@ -52,6 +52,9 @@ func main() {
 	signal.Notify(chSignal, os.Interrupt)
 
 	<-chSignal
-	logh.Stop()
+	if err := logh.Stop(); err != nil {
+		log.Fatalf("failed to close log handler: %v", err)
+		return
+	}
 	wg.Wait()
 }
