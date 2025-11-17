@@ -4,13 +4,10 @@ import (
 	"errors"
 	"io"
 	"os"
-	"time"
 
 	"github.com/cilium/ebpf"
 	"github.com/cilium/ebpf/perf"
 )
-
-var Deadline = 100 * time.Millisecond
 
 type Handler struct {
 	m       *ebpf.Map
